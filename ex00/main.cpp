@@ -3,6 +3,7 @@
 #include <fstream>
 #include <map>
 #include <sstream>
+#include <cmath>
 
 int date_error(const std::string& dateStr) {
     std::istringstream iss(dateStr);
@@ -53,13 +54,29 @@ int amount_error(float amount) {
         std::cout << "Error: not a positive number." << std::endl;
         return 1;
     }
-    if (amount > std::numeric_limits<float>::max()) {
+    if (amount > 10000) {
         std::cout << "Error: too large a number." << std::endl;
         return 1;
     }
     return 0;
 }
 
+int date_difference(const std::string& date1, const std::string& date2) {
+    int year1, month1, day1;
+    int year2, month2, day2;
+    sscanf(date1.c_str(), "%d-%d-%d", &year1, &month1, &day1);
+    sscanf(date2.c_str(), "%d-%d-%d", &year2, &month2, &day2);
+
+    int yearDiff = year1 - year2;
+    int monthDiff = month1 - month2;
+    int dayDiff = day1 - day2;
+
+    int yearDays = yearDiff * 365;
+    int monthDays = monthDiff * 30;
+
+    int totalDays = yearDays + monthDays + dayDiff;
+	return totalDays;
+}
 
 void	pars_data(std::map<std::string, float> &Data) {
 	std::ifstream	file;
@@ -72,10 +89,9 @@ void	pars_data(std::map<std::string, float> &Data) {
 		}
 	}
 
-	std::cout << "all good" << std::endl;
 	std::string	line;
 	while (std::getline(file, line)) {
-		if (line == "date,exchange_rate") {std::cout << "lol im here" << std::endl; continue;}
+		if (line == "date,exchange_rate") {continue;}
 		std::istringstream stream(line);
 		std::string date, rate;
 		if (std::getline(stream, date, ',') && std::getline(stream, rate, ',')) {
@@ -91,8 +107,8 @@ void	pars_data(std::map<std::string, float> &Data) {
 
 			//std::cout << "\"" << date << "\"" << " = " << "\"" << exchangeRate << "\"" << std::endl;
 		}
-	}
-
+	}	
+	file.close();
 }
 
 void    pars_file(char *av, std::map<std::string, float> &data) {
@@ -108,7 +124,7 @@ void    pars_file(char *av, std::map<std::string, float> &data) {
 	// process of program follows //
 	std::string			line;
 	while(std::getline(file, line)) {
-		if (line == "date | value") {std::cout << "first line skipped" << std::endl; continue;}
+		if (line == "date | value") {continue;}
 		std::istringstream	stream(line);
 		std::string			date, amount;
 		if (std::getline(stream, date, '|') && std::getline(stream, amount, '|')) {
@@ -127,13 +143,40 @@ void    pars_file(char *av, std::map<std::string, float> &data) {
 			// handle possible errors on execution //
 			if (date_error(date)) {continue;}
 			if (amount_error(TheAmount)) {continue;}
-			std::cout << "\"" << date << "\"" << " " << "\"" << amount << "\"" << std::endl;
-		}
+			// actual conversion if everything is fine //
+            std::map<std::string, float>::const_iterator it = data.find(date);
+            if (it == data.end()) {
+                // if Date not found, find the nearest one //
+                it = data.lower_bound(date);
+                if (it == data.begin()) {
+                    // The given date is earlier than any available dates, use first one //
+                    it = data.begin();
+                } else if (it == data.end()) {
+                    // The given date is later than any available dates, use last one //
+                    it = --data.end();
+                } else {
+                    // Find the nearest date by comparing the difference in days
+                    std::map<std::string, float>::const_iterator lower = it;
+                    std::map<std::string, float>::const_iterator upper = it;
+                    --lower;
 
+                    int daysLower = date_difference(lower->first, date);
+                    int daysUpper = date_difference(upper->first, date);
 
-		
-	}
-	//-----------------------------//
+                    if (daysLower > daysUpper) {
+                        it = upper;
+                    }
+                }
+            }
+            // Perform the conversion using the found exchange rate
+            double convertedAmount = static_cast<double>(TheAmount) * static_cast<double>(it->second);
+			std::cout << date << " => " << TheAmount << " = " << convertedAmount << std::endl;
+
+        }
+		else
+			std::cout << "Error: bad input => " << line << std::endl;
+    }
+    file.close();
 }
 
 int     main(int ac, char **av) {
@@ -143,5 +186,4 @@ int     main(int ac, char **av) {
     if (ac != 2) {std::cout << "Error: could not open file." << std::endl; exit(0);}
     pars_data(Data);
 	pars_file(av[1], Data);
-
 }

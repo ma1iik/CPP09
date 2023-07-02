@@ -1,11 +1,11 @@
-NAME = btc
+NAME = RPN
 
 CC = c++
 
 FLAGS = -Wall -Wextra -Werror -std=c++98
 
 SRC =	main.cpp \
-		BitcoinExchange.cpp \
+		RPN.cpp \
 
 OBJ = $(SRC:%.cpp=%.o)
 
@@ -15,7 +15,7 @@ OBJ = $(SRC:%.cpp=%.o)
 all : $(NAME)
 
 $(NAME) : $(OBJ)
-	$(CC) $(FLAGS) $(OBJ) -o
+	$(CC) $(FLAGS) $(OBJ) -o $(NAME)
 
 clean:
 	rm -rf $(OBJ)
