@@ -24,19 +24,18 @@ class PmergeMe
 
 		PmergeMe	&operator=(PmergeMe const &rhs);
 
-		clock_t	start;
-		clock_t	vectortimer;
-		clock_t	dequetimer;
-
 		void	sort();
 		void	sortVector();
-		void	sortDeque(std::deque<int> deque, std::deque<int>::iterator begin, std::deque<int>::iterator end);
+		void	sortDeque();
 
 		void	makePair(std::pair<int, int> pairTab[], int *tmp);
 		void	sortPair(std::pair<int, int> pairTab[], int amount);
 		void	pushMaxToVec(std::pair<int, int> pairTab[]);
 		void	pushMinToVec( std::pair<int, int> pairTab[], int *last);
+		void	pushMaxToDeq( std::pair<int, int> pairTab[]);
+		void	pushMinToDeq( std::pair<int, int> pairTab[], int *last);
 		void	add_last(std::pair<int, int> pairTab[], int *last);
+		void	add_last_deq(std::pair<int, int> pairTab[], int *last);
 		bool	allpushed(std::pair<int, int> pairTab[]);
 
 		std::vector<int> const	&getVector( void ) const;

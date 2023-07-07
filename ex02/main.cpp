@@ -19,14 +19,14 @@ int main(int ac, char **av) {
 		}
     }
 
-	// std::vector<int>	vect;
-	// std::deque<int>		deq;
-
 	PmergeMe	sorter(ac, av);
 
 	std::cout << "\e[1;31mBefore\e[0m:	";
 	for (int i = 1; av[i]; i++) {
-
+		if (i == 5 &&  ac - 1 > 7) {
+			std::cout << "[...]" << std::endl;
+			break;
+		}
 		if (!av[i + 1])
 			std::cout << av[i] << std::endl;
 		else
@@ -34,10 +34,4 @@ int main(int ac, char **av) {
 	}
 	
 	sorter.sort();
-
-	// clock_t		startVecTime = std::clock();
-
-
-	// clock_t		endtVecTime = std::clock();
-	// double		durationVector = static_cast<double>(startVecTime - endtVecTime) / CLOCKS_PER_SEC;
 }
